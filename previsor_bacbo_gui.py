@@ -126,9 +126,9 @@ class BacboApp:
                 texto += f"- {label}: {int(v * 100)}%\n"
 
             # Ajuste de cor conforme confiança
-            if prob < 0.3:
+            if prob < 0.50:
                 self.resultado_label.config(bg="red")
-            elif prob > 0.8:
+            elif prob > 0.75:
                 self.resultado_label.config(bg="green")
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
