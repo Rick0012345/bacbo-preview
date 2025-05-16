@@ -57,9 +57,10 @@ class BacboApp:
         self.sequence = []
         self.total_correct = 0
         self.correct_high_conf = 0
-        self.high_prob_count = 0  # Contador de probabilidades >75%
+        self.high_prob_count = 0
         self.last_prediction = None
         self.last_prob = None
+        self.high_conf_games = 0  # Contador de partidas com probabilidade >65%
 
         # Label da sequência
         self.label_seq = tk.Label(master, text="Sequência atual: []")
@@ -68,7 +69,7 @@ class BacboApp:
         # Estatísticas: rodadas, acertos e contadores
         self.stats_label = tk.Label(
             master,
-            text="Rodadas: 0 | Acertos: 0 | Acertos >80%: 0 | Prob>75%: 0"
+            text="Rodadas: 0 | Acertos: 0 | Acertos >65%: 0 | Prob>65%: 0 "
         )
         self.stats_label.pack(pady=5)
 
@@ -100,8 +101,9 @@ class BacboApp:
         # Avalia acerto da última previsão
         if self.last_prediction is not None and resultado == self.last_prediction:
             self.total_correct += 1
-            if self.last_prob and self.last_prob >= 0.8:
+            if self.last_prob and self.last_prob >= 0.65:
                 self.correct_high_conf += 1
+                
 
         # Atualiza sequência e contagem de rodadas
         self.sequence.append(resultado)
@@ -111,15 +113,16 @@ class BacboApp:
         # Atualiza previsão
         self.atualizar_previsao()
 
-        # Conta probabilidades altas (>75%)
-        if self.last_prob is not None and self.last_prob > 0.75:
+        # Conta probabilidades altas (>65%)
+        if self.last_prob is not None and self.last_prob > 0.65:
             self.high_prob_count += 1
+            self.high_conf_games += 1
 
         # Atualiza label de estatísticas
         self.stats_label.config(
             text=(
                 f"Rodadas: {rodadas} | Acertos: {self.total_correct} | "
-                f"Acertos >80%: {self.correct_high_conf} | Prob>75%: {self.high_prob_count}"
+                f"Acertos >65%: {self.correct_high_conf} | Prob>65%: {self.high_prob_count} | "
             )
         )
 
@@ -141,7 +144,7 @@ class BacboApp:
             # Ajuste de cor conforme confiança
             if prob < 0.3:
                 self.resultado_label.config(bg="red")
-            elif prob > 0.8:
+            elif prob > 0.65:
                 self.resultado_label.config(bg="green")
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
@@ -156,3 +159,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = BacboApp(root)
     root.mainloop()
+
