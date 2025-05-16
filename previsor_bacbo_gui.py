@@ -57,6 +57,7 @@ class BacboApp:
         self.sequence = []
         self.total_correct = 0
         self.correct_high_conf = 0
+        self.high_prob_count = 0  # Contador de probabilidades >75%
         self.last_prediction = None
         self.last_prob = None
 
@@ -64,8 +65,11 @@ class BacboApp:
         self.label_seq = tk.Label(master, text="Sequência atual: []")
         self.label_seq.pack()
 
-        # Estatísticas: rodadas, acertos e acertos de alta confiança
-        self.stats_label = tk.Label(master, text="Rodadas: 0 | Acertos: 0 | Acertos >80%: 0")
+        # Estatísticas: rodadas, acertos e contadores
+        self.stats_label = tk.Label(
+            master,
+            text="Rodadas: 0 | Acertos: 0 | Acertos >80%: 0 | Prob>75%: 0"
+        )
         self.stats_label.pack(pady=5)
 
         # Botões de input
@@ -104,10 +108,19 @@ class BacboApp:
         rodadas = len(self.sequence)
         self.label_seq.config(text=f"Sequência atual: {' '.join(self.sequence)}")
 
-        # Atualiza previsão e estatísticas
+        # Atualiza previsão
         self.atualizar_previsao()
+
+        # Conta probabilidades altas (>75%)
+        if self.last_prob is not None and self.last_prob > 0.75:
+            self.high_prob_count += 1
+
+        # Atualiza label de estatísticas
         self.stats_label.config(
-            text=f"Rodadas: {rodadas} | Acertos: {self.total_correct} | Acertos >80%: {self.correct_high_conf}"
+            text=(
+                f"Rodadas: {rodadas} | Acertos: {self.total_correct} | "
+                f"Acertos >80%: {self.correct_high_conf} | Prob>75%: {self.high_prob_count}"
+            )
         )
 
     def atualizar_previsao(self):
@@ -126,9 +139,9 @@ class BacboApp:
                 texto += f"- {label}: {int(v * 100)}%\n"
 
             # Ajuste de cor conforme confiança
-            if prob < 0.50:
+            if prob < 0.3:
                 self.resultado_label.config(bg="red")
-            elif prob > 0.75:
+            elif prob > 0.8:
                 self.resultado_label.config(bg="green")
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
