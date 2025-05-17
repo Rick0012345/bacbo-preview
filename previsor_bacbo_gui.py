@@ -65,7 +65,7 @@ class BacboApp:
         # Estat sticas: rodadas, acertos e contadores
         self.stats_label = tk.Label(
             master,
-            text="Rodadas: 0 | Acertos: 0 | Acertos >80%: 0 | Prob>75%: 0"
+            text="Rodadas: 0 | Acertos: 0 | Acertos >70%: 0 | Prob>70%: 0"
         )
         self.stats_label.pack(pady=5)
 
@@ -97,27 +97,27 @@ class BacboApp:
         # Atualiza sequ ncia e contagem de rodadas
         self.sequence.append(resultado)
         rodadas = len(self.sequence)
-        self.label_seq.config(text=f"Sequ ncia atual: {' '.join(self.sequence)}")
+        self.label_seq.config(text=f"Sequencia atual: {' '.join(self.sequence)}")
 
         # Contagem de acertos s  ap s 20 rodadas
         if rodadas > 20 and self.last_prediction is not None:
             if resultado == self.last_prediction:
                 self.total_correct += 1
-                if self.last_prob and self.last_prob >= 0.8:
+                if self.last_prob and self.last_prob >= 0.70:
                     self.correct_high_conf += 1
 
         # Atualiza previs o para a pr xima rodada
         self.atualizar_previsao()
 
         # Conta probabilidades altas (>75%) somente ap s 20 rodadas
-        if rodadas > 20 and self.last_prob is not None and self.last_prob > 0.75:
+        if rodadas > 20 and self.last_prob is not None and self.last_prob > 0.70:
             self.high_prob_count += 1
 
         # Atualiza label de estat sticas
         self.stats_label.config(
             text=(
                 f"Rodadas: {rodadas} | Acertos: {self.total_correct} | "
-                f"Acertos >80%: {self.correct_high_conf} | Prob>75%: {self.high_prob_count}"
+                f"Acertos >70%: {self.correct_high_conf} | Prob>70%: {self.high_prob_count}"
             )
         )
 
@@ -137,9 +137,9 @@ class BacboApp:
                 texto += f"- {label}: {int(v * 100)}%\n"
 
             # Ajuste de cor conforme confian a
-            if prob < 0.3:
+            if prob < 0.50:
                 self.resultado_label.config(bg="red")
-            elif prob > 0.8:
+            elif prob > 0.70:
                 self.resultado_label.config(bg="green")
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
