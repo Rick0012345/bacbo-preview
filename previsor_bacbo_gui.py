@@ -2,7 +2,7 @@ import tkinter as tk
 from collections import defaultdict, Counter
 import pandas as pd
 
-# Funções de previsão
+# Fun es de previs o
 def matriz_ordem_1(seq):
     trans = defaultdict(Counter)
     for a, b in zip(seq, seq[1:]):
@@ -11,7 +11,6 @@ def matriz_ordem_1(seq):
     prob = df.div(df.sum(axis=0), axis=1).round(2)
     return prob
 
-
 def matriz_ordem_2(seq):
     trans = defaultdict(Counter)
     for a, b, c in zip(seq, seq[1:], seq[2:]):
@@ -19,7 +18,6 @@ def matriz_ordem_2(seq):
     df = pd.DataFrame(trans).T.fillna(0).astype(int)
     prob = df.div(df.sum(axis=1), axis=0).round(2)
     return prob
-
 
 def prever_por_blocos(seq, bloco_tam=3):
     blocos = defaultdict(list)
@@ -33,7 +31,6 @@ def prever_por_blocos(seq, bloco_tam=3):
         total = sum(contagem.values())
         return {k: round(v / total, 2) for k, v in contagem.items()}
     return {}
-
 
 def previsao_final(seq):
     if len(seq) < 4:
@@ -60,20 +57,19 @@ class BacboApp:
         self.high_prob_count = 0
         self.last_prediction = None
         self.last_prob = None
-        self.high_conf_games = 0  # Contador de partidas com probabilidade >65%
 
-        # Label da sequência
-        self.label_seq = tk.Label(master, text="Sequência atual: []")
+        # Label da sequ ncia
+        self.label_seq = tk.Label(master, text="Sequ ncia atual: []")
         self.label_seq.pack()
 
-        # Estatísticas: rodadas, acertos e contadores
+        # Estat sticas: rodadas, acertos e contadores
         self.stats_label = tk.Label(
             master,
-            text="Rodadas: 0 | Acertos: 0 | Acertos >65%: 0 | Prob>65%: 0 "
+            text="Rodadas: 0 | Acertos: 0 | Acertos >80%: 0 | Prob>75%: 0"
         )
         self.stats_label.pack(pady=5)
 
-        # Botões de input
+        # Bot es de input
         self.btn_frame = tk.Frame(master)
         self.btn_frame.pack()
         for text in ["B", "P", "T"]:
@@ -85,44 +81,43 @@ class BacboApp:
             )
             btn.pack(side=tk.LEFT, padx=5, pady=5)
 
-        # Label de resultado da previsão
+        # Label de resultado da previs o
         self.resultado_label = tk.Label(
             master,
-            text="Previsão aparecerá aqui",
+            text="Previs o aparecer  aqui",
             font=("Arial", 12),
             justify=tk.LEFT,
             width=40,
-            height=10,
+            height=4,
             bg="SystemButtonFace"
         )
         self.resultado_label.pack(pady=10)
 
     def adicionar_resultado(self, resultado):
-        # Avalia acerto da última previsão
-        if self.last_prediction is not None and resultado == self.last_prediction:
-            self.total_correct += 1
-            if self.last_prob and self.last_prob >= 0.65:
-                self.correct_high_conf += 1
-                
-
-        # Atualiza sequência e contagem de rodadas
+        # Atualiza sequ ncia e contagem de rodadas
         self.sequence.append(resultado)
         rodadas = len(self.sequence)
-        self.label_seq.config(text=f"Sequência atual: {' '.join(self.sequence)}")
+        self.label_seq.config(text=f"Sequ ncia atual: {' '.join(self.sequence)}")
 
-        # Atualiza previsão
+        # Contagem de acertos s  ap s 20 rodadas
+        if rodadas > 20 and self.last_prediction is not None:
+            if resultado == self.last_prediction:
+                self.total_correct += 1
+                if self.last_prob and self.last_prob >= 0.8:
+                    self.correct_high_conf += 1
+
+        # Atualiza previs o para a pr xima rodada
         self.atualizar_previsao()
 
-        # Conta probabilidades altas (>65%)
-        if self.last_prob is not None and self.last_prob > 0.65:
+        # Conta probabilidades altas (>75%) somente ap s 20 rodadas
+        if rodadas > 20 and self.last_prob is not None and self.last_prob > 0.75:
             self.high_prob_count += 1
-            self.high_conf_games += 1
 
-        # Atualiza label de estatísticas
+        # Atualiza label de estat sticas
         self.stats_label.config(
             text=(
                 f"Rodadas: {rodadas} | Acertos: {self.total_correct} | "
-                f"Acertos >65%: {self.correct_high_conf} | Prob>65%: {self.high_prob_count} | "
+                f"Acertos >80%: {self.correct_high_conf} | Prob>75%: {self.high_prob_count}"
             )
         )
 
@@ -135,28 +130,23 @@ class BacboApp:
             self.last_prob = prob
 
             nome = {"B": "BANKER", "P": "PLAYER", "T": "TIE"}[mais_provavel]
-            texto = f"Próximo resultado mais provável: {nome} ({int(prob * 100)}%)\n\n"
+            texto = f"Pr ximo resultado mais prov vel: {nome} ({int(prob * 100)}%)\n\n"
             texto += "Probabilidades completas:\n"
             for k, v in resultado.items():
                 label = {"B": "Banker", "P": "Player", "T": "Tie"}[k]
                 texto += f"- {label}: {int(v * 100)}%\n"
 
-            # Ajuste de cor conforme confiança
+            # Ajuste de cor conforme confian a
             if prob < 0.3:
                 self.resultado_label.config(bg="red")
-            elif prob > 0.65:
+            elif prob > 0.8:
                 self.resultado_label.config(bg="green")
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
         else:
-            texto = "Ainda não há dados suficientes para prever."
+            texto = "Ainda n o h  dados suficientes para prever."
             self.last_prediction = None
             self.last_prob = None
             self.resultado_label.config(bg="SystemButtonFace")
         self.resultado_label.config(text=texto)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = BacboApp(root)
-    root.mainloop()
 
