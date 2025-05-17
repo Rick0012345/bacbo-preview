@@ -88,7 +88,7 @@ class BacboApp:
             font=("Arial", 12),
             justify=tk.LEFT,
             width=40,
-            height=4,
+            height=10,
             bg="SystemButtonFace"
         )
         self.resultado_label.pack(pady=10)
@@ -130,7 +130,7 @@ class BacboApp:
             self.last_prob = prob
 
             nome = {"B": "BANKER", "P": "PLAYER", "T": "TIE"}[mais_provavel]
-            texto = f"Pr ximo resultado mais prov vel: {nome} ({int(prob * 100)}%)\n\n"
+            texto = f"Proximo resultado mais provavel: {nome} ({int(prob * 100)}%)\n\n"
             texto += "Probabilidades completas:\n"
             for k, v in resultado.items():
                 label = {"B": "Banker", "P": "Player", "T": "Tie"}[k]
@@ -144,7 +144,7 @@ class BacboApp:
             else:
                 self.resultado_label.config(bg="SystemButtonFace")
         else:
-            texto = "Ainda n o h  dados suficientes para prever."
+            texto = "Ainda não há  dados suficientes para prever."
             self.last_prediction = None
             self.last_prob = None
             self.resultado_label.config(bg="SystemButtonFace")
